@@ -6,6 +6,7 @@ import "./App.css";
 import AddTutorial from "./components/add-tutorial.component";
 import Tutorial from "./components/tutorial.component";
 import TutorialsList from "./components/tutorials-list.component";
+import { Container } from "react-bootstrap";
 
 class App extends Component {
   render() {
@@ -13,7 +14,7 @@ class App extends Component {
       <Router>
         <nav className="navbar navbar-expand navbar-dark bg-dark">
           <Link to={"/tutorials"} className="navbar-brand">
-            bezKoder
+            Home
           </Link>
           <div className="navbar-nav mr-auto">
             <li className="nav-item">
@@ -29,13 +30,13 @@ class App extends Component {
           </div>
         </nav>
 
-        <div className="container mt-3">
+        <Container>
           <Switch>
-            <Route exact path={["/", "/tutorials"]} component={TutorialsList} />
-            <Route exact path="/add" component={AddTutorial} />
+            <Route exact path={["/", "/home"]} component={TutorialsList} />
+            <Route exact path="/tutorials" component={TutorialsList} />
             <Route path="/tutorials/:id" component={Tutorial} />
           </Switch>
-        </div>
+        </Container>
       </Router>
     );
   }

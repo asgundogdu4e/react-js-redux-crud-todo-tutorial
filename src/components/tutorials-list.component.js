@@ -92,14 +92,10 @@ class TutorialsList extends Component {
               {tutorials &&
                 tutorials.map((tutorial, index) => (
                   <tr
-                    className={
-                      "list-group-item " +
-                      (index === currentIndex ? "active" : "")
-                    }
                     onClick={() => this.setActiveTutorial(tutorial, index)}
                     key={index}
                   >
-                    <td>{tutorial.id}</td>
+                    <td>{++index}.</td>
                     <td>{tutorial.title}</td>
                     <td>{tutorial.description}</td>
                     <td>{tutorial.published}</td>
