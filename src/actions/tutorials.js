@@ -14,10 +14,10 @@ export const createTutorial = (title, description) => async (dispatch) => {
 
     dispatch({
       type: CREATE_TUTORIAL,
-      payload: res.data,
+      payload: res.data.Kayitlar,
     });
 
-    return Promise.resolve(res.data);
+    return Promise.resolve(res.data.Kayitlar);
   } catch (err) {
     return Promise.reject(err);
   }
@@ -29,7 +29,7 @@ export const retrieveTutorials = () => async (dispatch) => {
 
     dispatch({
       type: RETRIEVE_TUTORIALS,
-      payload: res.data,
+      payload: res.data.Kayitlar,
     });
   } catch (err) {
     console.log(err);
@@ -45,7 +45,7 @@ export const updateTutorial = (id, data) => async (dispatch) => {
       payload: data,
     });
 
-    return Promise.resolve(res.data);
+    return Promise.resolve(res.data.Kayitlar);
   } catch (err) {
     return Promise.reject(err);
   }
@@ -70,10 +70,10 @@ export const deleteAllTutorials = () => async (dispatch) => {
 
     dispatch({
       type: DELETE_ALL_TUTORIALS,
-      payload: res.data,
+      payload: res.data.Kayitlar,
     });
 
-    return Promise.resolve(res.data);
+    return Promise.resolve(res.data.Kayitlar);
   } catch (err) {
     return Promise.reject(err);
   }
@@ -85,7 +85,7 @@ export const findTutorialsByTitle = (title) => async (dispatch) => {
 
     dispatch({
       type: RETRIEVE_TUTORIALS,
-      payload: res.data,
+      payload: res.data.Kayitlar,
     });
   } catch (err) {
     console.log(err);
