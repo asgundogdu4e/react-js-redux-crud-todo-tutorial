@@ -5,22 +5,18 @@ import {
   findTutorialsByTitle,
   deleteAllTutorials,
 } from "../actions/tutorials";
-import { Link } from "react-router-dom";
-import { Card, Table } from 'react-bootstrap';
+import { Card, Table, Row, Col, Button, Modal, Form } from "react-bootstrap";
 
 class TutorialsList extends Component {
   constructor(props) {
     super(props);
     this.onChangeSearchTitle = this.onChangeSearchTitle.bind(this);
     this.refreshData = this.refreshData.bind(this);
-    this.setActiveTutorial = this.setActiveTutorial.bind(this);
     this.findByTitle = this.findByTitle.bind(this);
-    this.removeAllTutorials = this.removeAllTutorials.bind(this);
-
     this.state = {
-      currentTutorial: null,
-      currentIndex: -1,
       searchTitle: "",
+      show: false,
+      tutorial: {},
     };
   }
 
@@ -36,31 +32,7 @@ class TutorialsList extends Component {
     });
   }
 
-  refreshData() {
-    this.setState({
-      currentTutorial: null,
-      currentIndex: -1,
-    });
-  }
-
-  setActiveTutorial(tutorial, index) {
-    this.setState({
-      currentTutorial: tutorial,
-      currentIndex: index,
-    });
-  }
-
-  removeAllTutorials() {
-    this.props
-      .deleteAllTutorials()
-      .then((response) => {
-        console.log(response);
-        this.refreshData();
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-  }
+  refreshData() {}
 
   findByTitle() {
     this.refreshData();
@@ -68,44 +40,67 @@ class TutorialsList extends Component {
     this.props.findTutorialsByTitle(this.state.searchTitle);
   }
 
+  setShow(show, tutorial) {
+    this.setState({ show });
+    if (tutorial) {
+      this.setState({ tutorial });
+    }
+  }
+
   render() {
-    const { searchTitle, currentTutorial, currentIndex } = this.state;
+    const { searchTitle, show, tutorial } = this.state;
     const { tutorials } = this.props;
 
     return (
       <Card>
         <Card.Body>
-          <Card.Title>Tutorials List</Card.Title>
           <Card.Text></Card.Text>
-
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Published</th>
-              </tr>
-            </thead>
-            <tbody>
-
-              {tutorials &&
-                tutorials.map((tutorial, index) => (
-                  <tr
-                    onClick={() => this.setActiveTutorial(tutorial, index)}
-                    key={index}
-                  >
-                    <td>{++index}.</td>
-                    <td>{tutorial.title}</td>
-                    <td>{tutorial.description}</td>
-                    <td>{tutorial.published}</td>
-                  </tr>
-                ))}
-            </tbody>
-          </Table>
-
-          <div className="list row">
-            <div className="col-md-8">
+          <Modal show={show} onHide={() => this.setShow(false)}>
+            <Modal.Header>
+              <Modal.Title>
+                {!tutorial.id ? "New Tutorial" : "Edit Tutorial"}
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <Form>
+                <Form.Group className="mb-3">
+                  <Form.Label>Title</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={tutorial.title}
+                    placeholder="Enter Title"
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Description</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={tutorial.description}
+                    placeholder="Enter Description"
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Check
+                    type="checkbox"
+                    checked={tutorial.published}
+                    label="Published"
+                  />
+                  {tutorial.published}
+                </Form.Group>
+              </Form>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={() => this.setShow(false)}>
+                Cancel
+              </Button>
+              <Button variant="primary">Save</Button>
+            </Modal.Footer>
+          </Modal>
+          <Row>
+            <Col xs={2}>
+              <h4>Tutorials List</h4>
+            </Col>
+            <Col xs={10}>
               <div className="input-group mb-3">
                 <input
                   type="text"
@@ -123,72 +118,56 @@ class TutorialsList extends Component {
                     Search
                   </button>
                 </div>
-              </div>
-            </div>
-            <div className="col-md-6">
-              <h4>Tutorials List</h4>
-
-              <ul className="list-group">
-                {tutorials &&
-                  tutorials.map((tutorial, index) => (
-                    <li
-                      className={
-                        "list-group-item " +
-                        (index === currentIndex ? "active" : "")
-                      }
-                      onClick={() => this.setActiveTutorial(tutorial, index)}
-                      key={index}
-                    >
-                      {tutorial.title}
-                    </li>
-                  ))}
-              </ul>
-
-              <button
-                className="m-3 btn btn-sm btn-danger"
-                onClick={this.removeAllTutorials}
-              >
-                Remove All
-              </button>
-            </div>
-            <div className="col-md-6">
-              {currentTutorial ? (
-                <div>
-                  <h4>Tutorial</h4>
-                  <div>
-                    <label>
-                      <strong>Title:</strong>
-                    </label>{" "}
-                    {currentTutorial.title}
-                  </div>
-                  <div>
-                    <label>
-                      <strong>Description:</strong>
-                    </label>{" "}
-                    {currentTutorial.description}
-                  </div>
-                  <div>
-                    <label>
-                      <strong>Status:</strong>
-                    </label>{" "}
-                    {currentTutorial.published ? "Published" : "Pending"}
-                  </div>
-
-                  <Link
-                    to={"/tutorials/" + currentTutorial.id}
-                    className="badge badge-warning"
+                <div className="input-group-append">
+                  <Button
+                    className="btn btn-outline-secondary"
+                    type="button"
+                    onClick={this.findByTitle}
+                    variant="outline-primary"
+                    onClick={() => this.setShow(true, {})}
                   >
-                    Edit
-                  </Link>
+                    New Tutorial
+                  </Button>
                 </div>
-              ) : (
-                <div>
-                  <br />
-                  <p>Please click on a Tutorial...</p>
-                </div>
-              )}
-            </div>
-          </div>
+              </div>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col xs={12}>
+              <Table striped bordered hover>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Published</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tutorials &&
+                    tutorials.map((tutorial, index) => (
+                      <tr key={index}>
+                        <td>{++index}.</td>
+                        <td>{tutorial.title}</td>
+                        <td>{tutorial.description}</td>
+                        <td>{tutorial.published ? "Published" : "Pending"}</td>
+                        <td>
+                          <Button
+                            variant="outline-primary"
+                            onClick={() => this.setShow(true, tutorial)}
+                          >
+                            Edit
+                          </Button>{" "}
+                          <Button variant="outline-danger">Delete</Button>{" "}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </Table>
+            </Col>
+          </Row>
         </Card.Body>
       </Card>
     );
