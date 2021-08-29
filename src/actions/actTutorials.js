@@ -3,14 +3,14 @@ import {
   RETRIEVE_TUTORIALS,
   UPDATE_TUTORIAL,
   DELETE_TUTORIAL,
-  DELETE_ALL_TUTORIALS
+  DELETE_ALL_TUTORIALS,
 } from "./types";
 
 import TutorialDataService from "../services/tutorial.service";
 
-export const createTutorial = (title, description) => async (dispatch) => {
+export const saveTutorial = (data) => async (dispatch) => {
   try {
-    const res = await TutorialDataService.create({ title, description });
+    const res = await TutorialDataService.create(data);
 
     dispatch({
       type: CREATE_TUTORIAL,
@@ -26,7 +26,6 @@ export const createTutorial = (title, description) => async (dispatch) => {
 export const retrieveTutorials = () => async (dispatch) => {
   try {
     const res = await TutorialDataService.getAll();
-
     dispatch({
       type: RETRIEVE_TUTORIALS,
       payload: res.data.Kayitlar,
@@ -36,9 +35,9 @@ export const retrieveTutorials = () => async (dispatch) => {
   }
 };
 
-export const updateTutorial = (id, data) => async (dispatch) => {
+export const updateTutorial = (data) => async (dispatch) => {
   try {
-    const res = await TutorialDataService.update(id, data);
+    const res = await TutorialDataService.update(data);
 
     dispatch({
       type: UPDATE_TUTORIAL,

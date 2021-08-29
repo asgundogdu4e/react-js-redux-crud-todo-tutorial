@@ -4,7 +4,7 @@ import {
     retrieveTutorials,
     findTutorialsByTitle,
     deleteAllTutorials,
-} from "../actions/tutorials";
+} from "../actions/actTutorials";
 import { Link } from "react-router-dom";
 
 class TutorialsList extends Component {

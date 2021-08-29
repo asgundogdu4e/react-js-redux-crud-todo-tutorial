@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { createTutorial } from "../actions/tutorials";
+import { createTutorial } from "../actions/actTutorials";
 
 class AddTutorial extends Component {
   constructor(props) {

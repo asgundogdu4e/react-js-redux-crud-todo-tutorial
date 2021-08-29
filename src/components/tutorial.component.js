@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { updateTutorial, deleteTutorial } from "../actions/tutorials";
+import { updateTutorial, deleteTutorial } from "../actions/actTutorials";
 import TutorialDataService from "../services/tutorial.service";
 
 class Tutorial extends Component {

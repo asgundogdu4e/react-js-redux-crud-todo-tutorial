@@ -1,15 +1,22 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import {
+  updateTutorial,
   retrieveTutorials,
+  saveTutorial,
   findTutorialsByTitle,
-  deleteAllTutorials,
-} from "../actions/tutorials";
+  deleteTutorial,
+} from "../actions/actTutorials";
 import { Card, Table, Row, Col, Button, Modal, Form } from "react-bootstrap";
-
+import {
+  showToast,
+  ToastContainer,
+} from "./../assets/js/custom-toastification";
+import { DeleteAlert } from "./../assets/js/custom-sweetalert2";
 class TutorialsList extends Component {
   constructor(props) {
     super(props);
+    this.onChangeHandle = this.onChangeHandle.bind(this);
     this.onChangeSearchTitle = this.onChangeSearchTitle.bind(this);
     this.refreshData = this.refreshData.bind(this);
     this.findByTitle = this.findByTitle.bind(this);
@@ -47,12 +54,80 @@ class TutorialsList extends Component {
     }
   }
 
+  onChangeHandle = (e) => {
+    const { tutorial } = this.state;
+    const name = e.target.name;
+    let value = e.target.value;
+    if (name === "published") {
+      value = e.target.checked;
+    }
+    this.setState({
+      tutorial: {
+        ...tutorial,
+        [name]: value,
+      },
+    });
+  };
+
   render() {
     const { searchTitle, show, tutorial } = this.state;
     const { tutorials } = this.props;
+    const saveTutorial = () => {
+      const { tutorial } = this.state;
 
+      const data = {
+        id: tutorial.id,
+        title: tutorial.title,
+        description: tutorial.description,
+        published: tutorial.published,
+      };
+      console.log("data");
+      console.log(data);
+
+      if (tutorial.id) {
+        this.props
+          .updateTutorial(data)
+          .then(() => {
+            this.setShow(false);
+            showToast("Kayit işlemi gerçekleştirildi.");
+          })
+          .catch((e) => {
+            console.log(e);
+          });
+      } else {
+        this.props
+          .saveTutorial(data)
+          .then(() => {
+            this.setShow(false);
+            showToast("Kayit işlemi gerçekleştirildi.");
+          })
+          .catch((e) => {
+            console.log(e);
+          });
+      }
+    };
+
+    const kaydiSilmeyeHazirla = (id) => {
+      DeleteAlert().then((netice) => {
+        if (netice) {
+          this.props
+            .deleteTutorial(id)
+            .then(() => {
+              showToast("Kayit silindi.");
+            })
+            .catch((e) => {
+              console.log(e);
+            });
+        }
+      });
+    };
+
+    const yeniKayitHazirla = (id) => {
+      this.setShow(true, { title: "", description: "" });
+    };
     return (
       <Card>
+        <ToastContainer />
         <Card.Body>
           <Card.Text></Card.Text>
           <Modal show={show} onHide={() => this.setShow(false)}>
@@ -68,6 +143,8 @@ class TutorialsList extends Component {
                   <Form.Control
                     type="text"
                     value={tutorial.title}
+                    name="title"
+                    onChange={this.onChangeHandle}
                     placeholder="Enter Title"
                   />
                 </Form.Group>
@@ -76,12 +153,16 @@ class TutorialsList extends Component {
                   <Form.Control
                     type="text"
                     value={tutorial.description}
+                    name="description"
+                    onChange={this.onChangeHandle}
                     placeholder="Enter Description"
                   />
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Check
                     type="checkbox"
+                    name="published"
+                    onChange={this.onChangeHandle}
                     checked={tutorial.published}
                     label="Published"
                   />
@@ -93,7 +174,9 @@ class TutorialsList extends Component {
               <Button variant="secondary" onClick={() => this.setShow(false)}>
                 Cancel
               </Button>
-              <Button variant="primary">Save</Button>
+              <Button variant="primary" onClick={() => saveTutorial()}>
+                Save
+              </Button>
             </Modal.Footer>
           </Modal>
           <Row>
@@ -122,9 +205,8 @@ class TutorialsList extends Component {
                   <Button
                     className="btn btn-outline-secondary"
                     type="button"
-                    onClick={this.findByTitle}
                     variant="outline-primary"
-                    onClick={() => this.setShow(true, {})}
+                    onClick={yeniKayitHazirla}
                   >
                     New Tutorial
                   </Button>
@@ -160,7 +242,12 @@ class TutorialsList extends Component {
                           >
                             Edit
                           </Button>{" "}
-                          <Button variant="outline-danger">Delete</Button>{" "}
+                          <Button
+                            variant="outline-danger"
+                            onClick={() => kaydiSilmeyeHazirla(tutorial.id)}
+                          >
+                            Delete
+                          </Button>{" "}
                         </td>
                       </tr>
                     ))}
@@ -182,6 +269,8 @@ const mapStateToProps = (state) => {
 
 export default connect(mapStateToProps, {
   retrieveTutorials,
+  updateTutorial,
   findTutorialsByTitle,
-  deleteAllTutorials,
+  deleteTutorial,
+  saveTutorial,
 })(TutorialsList);
