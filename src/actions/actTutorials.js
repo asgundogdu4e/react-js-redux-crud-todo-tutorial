@@ -1,92 +1,65 @@
+import axios from "axios";
+import { API_BASE } from "./../config/env";
 import {
-  CREATE_TUTORIAL,
-  RETRIEVE_TUTORIALS,
+  FETCH_TUTORIALS,
+  INSERT_TUTORIAL,
   UPDATE_TUTORIAL,
   DELETE_TUTORIAL,
-  DELETE_ALL_TUTORIALS,
-} from "./types";
+  SET_SHOW_ADD_EDIT,
+} from "./typesTutorials";
 
-import TutorialDataService from "../services/tutorial.service";
-
-export const saveTutorial = (data) => async (dispatch) => {
-  try {
-    const res = await TutorialDataService.create(data);
-
-    dispatch({
-      type: CREATE_TUTORIAL,
-      payload: res.data.Kayitlar,
-    });
-
-    return Promise.resolve(res.data.Kayitlar);
-  } catch (err) {
-    return Promise.reject(err);
-  }
+export const fetchTutorials = () => {
+  return {
+    type: FETCH_TUTORIALS,
+    payload: axios.get(`${API_BASE}/tutorials`).then((result) => {
+      return result.data.Kayitlar;
+    }),
+  };
 };
 
-export const retrieveTutorials = () => async (dispatch) => {
-  try {
-    const res = await TutorialDataService.getAll();
-    dispatch({
-      type: RETRIEVE_TUTORIALS,
-      payload: res.data.Kayitlar,
-    });
-  } catch (err) {
-    console.log(err);
-  }
+export const updateTutorial = (data) => {
+  return {
+    type: UPDATE_TUTORIAL,
+    payload: axios
+      .put(`${API_BASE}/tutorials/${data.id}`, data)
+      .then((result) => {
+        return result.data.Kayitlar;
+      }),
+  };
 };
 
-export const updateTutorial = (data) => async (dispatch) => {
-  try {
-    const res = await TutorialDataService.update(data);
-
-    dispatch({
-      type: UPDATE_TUTORIAL,
-      payload: data,
-    });
-
-    return Promise.resolve(res.data.Kayitlar);
-  } catch (err) {
-    return Promise.reject(err);
-  }
+export const setShowAddEdit = (data) => async (dispatch) => {
+  dispatch({
+    type: SET_SHOW_ADD_EDIT,
+    payload: data,
+  });
 };
 
-export const deleteTutorial = (id) => async (dispatch) => {
-  try {
-    await TutorialDataService.delete(id);
-
-    dispatch({
-      type: DELETE_TUTORIAL,
-      payload: { id },
-    });
-  } catch (err) {
-    console.log(err);
-  }
+export const saveTutorial = (data) => {
+  return {
+    type: INSERT_TUTORIAL,
+    payload: axios.post(`${API_BASE}/tutorials`, data).then((result) => {
+      return result.data.Kayitlar;
+    }),
+  };
 };
 
-export const deleteAllTutorials = () => async (dispatch) => {
-  try {
-    const res = await TutorialDataService.deleteAll();
-
-    dispatch({
-      type: DELETE_ALL_TUTORIALS,
-      payload: res.data.Kayitlar,
-    });
-
-    return Promise.resolve(res.data.Kayitlar);
-  } catch (err) {
-    return Promise.reject(err);
-  }
+export const deleteTutorial = (id) => {
+  return {
+    type: DELETE_TUTORIAL,
+    payload: axios.delete(`${API_BASE}/tutorials/${id}`).then(() => {
+      return id;
+    }),
+  };
 };
 
-export const findTutorialsByTitle = (title) => async (dispatch) => {
-  try {
-    const res = await TutorialDataService.findByTitle(title);
-
-    dispatch({
-      type: RETRIEVE_TUTORIALS,
-      payload: res.data.Kayitlar,
-    });
-  } catch (err) {
-    console.log(err);
-  }
+export const findTutorialsByTitle = (title) => {
+  return {
+    type: FETCH_TUTORIALS,
+    payload: axios
+      .get(`${API_BASE}/tutorials/title/${title}`)
+      .then((result) => {
+        return result.data.Kayitlar;
+      }),
+  };
 };

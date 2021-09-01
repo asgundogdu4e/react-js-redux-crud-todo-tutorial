@@ -2,16 +2,18 @@ import React, { Component } from "react";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
-import Tutorial from "./components/tutorial.component";
-import TutorialsList from "./components/tutorials-list.component";
+import PgHome from "./pages/pg-home";
+import PgTutorials from "./pages/pg-tutorials";
+import PgTodos from "./pages/pg-todos";
 import { Container } from "react-bootstrap";
-
+import { ToastContainer } from "./assets/js/custom-toastification";
 class App extends Component {
   render() {
     return (
       <Router>
+        <ToastContainer />
         <nav className="navbar navbar-expand navbar-dark bg-dark">
-          <Link to={"/tutorials"} className="navbar-brand">
+          <Link to={"/home"} className="navbar-brand">
             Home
           </Link>
           <div className="navbar-nav mr-auto">
@@ -21,8 +23,8 @@ class App extends Component {
               </Link>
             </li>
             <li className="nav-item">
-              <Link to={"/add"} className="nav-link">
-                Add
+              <Link to={"/todos"} className="nav-link">
+                Todos
               </Link>
             </li>
           </div>
@@ -30,9 +32,9 @@ class App extends Component {
 
         <Container>
           <Switch>
-            <Route exact path={["/", "/home"]} component={TutorialsList} />
-            <Route exact path="/tutorials" component={TutorialsList} />
-            <Route path="/tutorials/:id" component={Tutorial} />
+            <Route exact path={["/", "/home"]} component={PgHome} />
+            <Route exact path="/tutorials" component={PgTutorials} />
+            <Route exact path="/todos" component={PgTodos} />
           </Switch>
         </Container>
       </Router>

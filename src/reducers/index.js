@@ -1,6 +1,7 @@
 import { combineReducers } from "redux";
-import tutorials from "./tutorials";
-
+import rdcTutorials from "./rdcTutorials";
+import rdcTodos from "./rdcTodos";
 export default combineReducers({
-  tutorials,
+  rdcTutorials,
+  rdcTodos,
 });

@@ -1,24 +1,22 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import {
+  setShowAddEdit,
   updateTutorial,
-  retrieveTutorials,
+  fetchTutorials,
   saveTutorial,
   findTutorialsByTitle,
   deleteTutorial,
-} from "../actions/actTutorials";
-import { Card, Table, Row, Col, Button, Modal, Form } from "react-bootstrap";
-import {
-  showToast,
-  ToastContainer,
-} from "./../assets/js/custom-toastification";
-import { DeleteAlert } from "./../assets/js/custom-sweetalert2";
-class TutorialsList extends Component {
+} from "../../actions/actTutorials";
+import { Card, Table, Row, Col, Button, Modal } from "react-bootstrap";
+import { DeleteAlert } from "../../assets/js/custom-sweetalert2";
+import CmpTutorial from "./cmp-tutorial";
+import { HashLoader } from "react-spinners";
+
+class cmpTutorialList extends Component {
   constructor(props) {
     super(props);
-    this.onChangeHandle = this.onChangeHandle.bind(this);
     this.onChangeSearchTitle = this.onChangeSearchTitle.bind(this);
-    this.refreshData = this.refreshData.bind(this);
     this.findByTitle = this.findByTitle.bind(this);
     this.state = {
       searchTitle: "",
@@ -28,7 +26,7 @@ class TutorialsList extends Component {
   }
 
   componentDidMount() {
-    this.props.retrieveTutorials();
+    this.props.fetchTutorials();
   }
 
   onChangeSearchTitle(e) {
@@ -39,85 +37,25 @@ class TutorialsList extends Component {
     });
   }
 
-  refreshData() {}
-
   findByTitle() {
-    this.refreshData();
-
     this.props.findTutorialsByTitle(this.state.searchTitle);
   }
 
   setShow(show, tutorial) {
-    this.setState({ show });
+    this.props.setShowAddEdit(show);
     if (tutorial) {
       this.setState({ tutorial });
     }
   }
 
-  onChangeHandle = (e) => {
-    const { tutorial } = this.state;
-    const name = e.target.name;
-    let value = e.target.value;
-    if (name === "published") {
-      value = e.target.checked;
-    }
-    this.setState({
-      tutorial: {
-        ...tutorial,
-        [name]: value,
-      },
-    });
-  };
-
   render() {
     const { searchTitle, show, tutorial } = this.state;
-    const { tutorials } = this.props;
-    const saveTutorial = () => {
-      const { tutorial } = this.state;
-
-      const data = {
-        id: tutorial.id,
-        title: tutorial.title,
-        description: tutorial.description,
-        published: tutorial.published,
-      };
-      console.log("data");
-      console.log(data);
-
-      if (tutorial.id) {
-        this.props
-          .updateTutorial(data)
-          .then(() => {
-            this.setShow(false);
-            showToast("Kayit işlemi gerçekleştirildi.");
-          })
-          .catch((e) => {
-            console.log(e);
-          });
-      } else {
-        this.props
-          .saveTutorial(data)
-          .then(() => {
-            this.setShow(false);
-            showToast("Kayit işlemi gerçekleştirildi.");
-          })
-          .catch((e) => {
-            console.log(e);
-          });
-      }
-    };
+    const { tutorials } = this.props.data;
 
     const kaydiSilmeyeHazirla = (id) => {
       DeleteAlert().then((netice) => {
         if (netice) {
-          this.props
-            .deleteTutorial(id)
-            .then(() => {
-              showToast("Kayit silindi.");
-            })
-            .catch((e) => {
-              console.log(e);
-            });
+          this.props.deleteTutorial(id);
         }
       });
     };
@@ -127,57 +65,24 @@ class TutorialsList extends Component {
     };
     return (
       <Card>
-        <ToastContainer />
         <Card.Body>
           <Card.Text></Card.Text>
-          <Modal show={show} onHide={() => this.setShow(false)}>
+          <Modal
+            size="lg"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
+            show={this.props.data.showAddEdit}
+            onHide={() => this.setShow(false)}
+          >
             <Modal.Header>
               <Modal.Title>
                 {!tutorial.id ? "New Tutorial" : "Edit Tutorial"}
               </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              <Form>
-                <Form.Group className="mb-3">
-                  <Form.Label>Title</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={tutorial.title}
-                    name="title"
-                    onChange={this.onChangeHandle}
-                    placeholder="Enter Title"
-                  />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>Description</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={tutorial.description}
-                    name="description"
-                    onChange={this.onChangeHandle}
-                    placeholder="Enter Description"
-                  />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Check
-                    type="checkbox"
-                    name="published"
-                    onChange={this.onChangeHandle}
-                    checked={tutorial.published}
-                    label="Published"
-                  />
-                  {tutorial.published}
-                </Form.Group>
-              </Form>
+              <CmpTutorial tutorial={tutorial} show={show} />
             </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={() => this.setShow(false)}>
-                Cancel
-              </Button>
-              <Button variant="primary" onClick={() => saveTutorial()}>
-                Save
-              </Button>
-            </Modal.Footer>
+            <Modal.Footer></Modal.Footer>
           </Modal>
           <Row>
             <Col xs={2}>
@@ -186,7 +91,7 @@ class TutorialsList extends Component {
             <Col xs={10}>
               <div className="input-group mb-3">
                 <input
-                  type="text"
+                  type="search"
                   className="form-control"
                   placeholder="Search by title"
                   value={searchTitle}
@@ -214,7 +119,16 @@ class TutorialsList extends Component {
               </div>
             </Col>
           </Row>
-
+          <Row>
+            <Col xs={6}></Col>
+            <Col xs={2}>
+              <HashLoader
+                color={"#36bdb3"}
+                loading={this.props.data.fetching}
+                className="loader"
+              ></HashLoader>
+            </Col>
+          </Row>
           <Row>
             <Col xs={12}>
               <Table striped bordered hover>
@@ -224,7 +138,7 @@ class TutorialsList extends Component {
                     <th>Title</th>
                     <th>Description</th>
                     <th>Published</th>
-                    <th>Actions</th>
+                    <th style={{ width: 140 + "px" }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -237,17 +151,20 @@ class TutorialsList extends Component {
                         <td>{tutorial.published ? "Published" : "Pending"}</td>
                         <td>
                           <Button
+                            size="sm"
                             variant="outline-primary"
                             onClick={() => this.setShow(true, tutorial)}
                           >
                             Edit
-                          </Button>{" "}
+                          </Button>
+                          {" | "}
                           <Button
+                            size="sm"
                             variant="outline-danger"
                             onClick={() => kaydiSilmeyeHazirla(tutorial.id)}
                           >
                             Delete
-                          </Button>{" "}
+                          </Button>
                         </td>
                       </tr>
                     ))}
@@ -262,15 +179,17 @@ class TutorialsList extends Component {
 }
 
 const mapStateToProps = (state) => {
-  return {
-    tutorials: state.tutorials,
+  const netice = {
+    data: state.rdcTutorials,
   };
+  return netice;
 };
 
 export default connect(mapStateToProps, {
-  retrieveTutorials,
+  fetchTutorials,
   updateTutorial,
   findTutorialsByTitle,
   deleteTutorial,
   saveTutorial,
-})(TutorialsList);
+  setShowAddEdit,
+})(cmpTutorialList);
